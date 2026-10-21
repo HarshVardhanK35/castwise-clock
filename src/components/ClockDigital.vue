@@ -35,7 +35,7 @@ defineProps<{
   box-sizing: border-box;
 }
 .city {
-  font-size: clamp(9px, min(4.2cqw, 4.4cqh), 15px);
+  font-size: clamp(14px, min(7cqw, 7.2cqh), 30px);
   font-weight: 600;
   letter-spacing: 0.14em;
   text-transform: uppercase;
@@ -55,7 +55,7 @@ defineProps<{
   color: #8b949e;
 }
 .date {
-  font-size: clamp(10px, min(5.4cqw, 5.4cqh), 20px);
+  font-size: clamp(13px, min(6.8cqw, 6.8cqh), 26px);
   font-weight: 400;
   color: #8b949e;
   text-wrap: balance;
