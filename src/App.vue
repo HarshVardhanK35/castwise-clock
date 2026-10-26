@@ -33,25 +33,32 @@ let hasLoadedOnce = false;
 let unwatchHostConfig: (() => void) | null = null;
 
 // Clock never fetches anything external — it just ticks locally (see
-// ClockWidget.vue) — so unlike Weather there's no data-fetch result to
-// wait on. init() is still called once, purely so Ignition's own
-// lifecycle/logging/VERSION machinery is wired up consistently with every
-// other app.
+// ClockWidget.vue) — so unlike Weather/RSS there's no real network wait on
+// a reload, APP_LOADING/APP_LOAD fire back-to-back almost instantly. Sent
+// anyway, every time, for the same shared DFM-side spinner protocol every
+// app uses — not visually meaningful here, but keeps the three apps
+// structurally consistent rather than Clock being a silent exception.
 async function activate(config: ClockAppConfig) {
   log(hasLoadedOnce ? "config changed" : "activating for the first time", config);
+  if (hasLoadedOnce) {
+    window.parent?.postMessage({ type: "APP_LOADING" }, "*");
+  }
+
   appConfig.value = config;
   status.value = "ready";
 
-  if (!hasLoadedOnce) {
+  const firstLoad = !hasLoadedOnce;
+  if (firstLoad) {
     hasLoadedOnce = true;
     await init({ appName: "clock" });
     log(`[CLOCK | E${IGNITION_VERSION}] bootstrap:ready`);
-    // Tells whatever's embedding this iframe (DFM's settings-screen preview
-    // today, the real player once deployed) that the app has actually
-    // rendered something — DFM's loading spinner stops on this.
-    log("posting APP_LOAD to parent");
-    window.parent?.postMessage({ type: "APP_LOAD" }, "*");
   }
+
+  // Tells whatever's embedding this iframe (DFM's settings-screen preview
+  // today, the real player once deployed) that the app has actually
+  // rendered something — DFM's loading spinner stops on this.
+  log("posting APP_LOAD to parent");
+  window.parent?.postMessage({ type: "APP_LOAD" }, "*");
 }
 
 onMounted(() => {
